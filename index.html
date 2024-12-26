@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de taille de lot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Calculateur de taille de lot</h1>
+    <form id="calculForm">
+        <label for="mode">Mode de calcul :</label>
+        <select id="mode">
+            <option value="1">Montant fixe</option>
+            <option value="2">Pourcentage du compte</option>
+        </select>
+
+        <label for="pips">Nombre de pips :</label>
+        <input type="number" id="pips" step="any" required>
+
+        <div id="montantFixeInputs">
+            <label for="montantRisque">Montant à risquer en dollars :</label>
+            <input type="number" id="montantRisque">
+        </div>
+
+        <div id="pourcentageInputs" style="display:none;">
+            <label for="balanceCompte">Balance du compte en dollars :</label>
+            <input type="number" id="balanceCompte">
+            <br>
+            <label for="pourcentageRisque">Pourcentage de risque (ex: 1 pour 1%) :</label>
+            <input type="number" id="pourcentageRisque" step="0.1">
+        </div>
+
+        <button type="submit">Calculer</button>
+    </form>
+
+    <div id="resultat"></div>
+
+    <script>
+        const form = document.getElementById('calculForm');
+        const modeSelect = document.getElementById('mode');
+        const montantFixeInputs = document.getElementById('montantFixeInputs');
+        const pourcentageInputs = document.getElementById('pourcentageInputs');
+        const resultatDiv = document.getElementById('resultat');
+
+        modeSelect.addEventListener('change', () => {
+            const isMontantFixe = modeSelect.value === '1';
+            montantFixeInputs.style.display = isMontantFixe ? 'block' : 'none';
+            pourcentageInputs.style.display = isMontantFixe ? 'none' : 'block';
+        });
+
+        const calculerTailleLot = (pips, montantRisque, balanceCompte = 0, pourcentageRisque = 0) => {
+            if (balanceCompte && pourcentageRisque) {
+                montantRisque = balanceCompte * (pourcentageRisque / 100);
+            }
+            return montantRisque / (pips * 10);
+        };
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pips = parseFloat(document.getElementById('pips').value);
+            const mode = modeSelect.value;
+            const montantRisque = mode === '1' ? parseFloat(document.getElementById('montantRisque').value) : 0;
+            const balanceCompte = mode === '2' ? parseFloat(document.getElementById('balanceCompte').value) : 0;
+            const pourcentageRisque = mode === '2' ? parseFloat(document.getElementById('pourcentageRisque').value) : 0;
+
+            const tailleLot = calculerTailleLot(pips, montantRisque, balanceCompte, pourcentageRisque);
+            resultatDiv.textContent = `Taille du lot : ${tailleLot.toFixed(4)}`;
+        });
+    </script>
+</body>
+</html>
